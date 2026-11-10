@@ -523,11 +523,6 @@
         .prod-search input::placeholder{color:var(--ink-soft)}
         .prod-noresult{display:none;text-align:center;color:var(--ink-soft);margin:6px 0 0}
       </style>
-      <div class="prod-search">
-        <span class="si"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>
-        <input id="prodSearch" type="search" placeholder="Tìm sản phẩm…" aria-label="Tìm sản phẩm">
-      </div>
-      <p class="prod-noresult" id="prodNoResult">Không tìm thấy sản phẩm phù hợp — anh/chị bấm <a href="tel:0389384010" style="color:var(--gold-bright)">gọi 0389.384.010</a> để bên em tư vấn nhé.</p>
       <div class="pgrid">
         <button class="pcard" data-cat="a" data-product="Menu Nhà hàng"><span class="thumb"><span class="cat">Menu</span><img src="img/sp/08/1.jpg" alt="Menu Nhà hàng" loading="lazy"></span><span class="meta"><b>Menu Nhà hàng</b><span class="cta">Xem thêm mẫu chi tiết →</span></span><span class="overlay"><span>Xem thêm mẫu →</span></span></button>
         <button class="pcard" data-cat="a" data-product="Menu Spa"><span class="thumb"><span class="cat">Menu Spa</span><img src="img/sp/07/1.jpg" alt="Menu Spa" loading="lazy"></span><span class="meta"><b>Menu Spa</b><span class="cta">Xem thêm mẫu chi tiết →</span></span><span class="overlay"><span>Xem thêm mẫu →</span></span></button>
@@ -1401,6 +1396,10 @@
   .prod-search input{padding:5px 12px 5px 31px !important; font-size:.78rem !important; border-radius:999px !important}
   .prod-search .si{left:11px !important}
   .prod-search .si svg{width:13px; height:13px}
+</style>
+<style id="am-fab-up">
+  #m-form{display:none !important}
+  @media(min-width:900px){.fab{bottom:auto !important; top:34% !important}}
 </style>
 <style id="sp-tight">
   #sanpham{padding-top:2px !important}
