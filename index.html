@@ -1772,5 +1772,16 @@ function closeLightbox(){var lb=document.getElementById('lightbox');lb.classList
   },true);
 })();
 </script>
+<style id="sec-rhythm">
+  /* Nhịp khoảng cách thống nhất giữa các mục */
+  :root{--sx:28px; --sh:20px}
+  @media(max-width:820px){:root{--sx:22px; --sh:16px}}
+  body section, body .camket-band{padding-top:var(--sx) !important; padding-bottom:var(--sx) !important}
+  body #khachhang, body #baogia, body #quytrinh, body #sumenh, body #vichon, body #gioithieu, body #tintuc, body #lienhe{padding-top:var(--sx) !important; padding-bottom:var(--sx) !important}
+  body #sanpham{padding-top:16px !important; padding-bottom:var(--sx) !important}
+  body .sec-head{margin-bottom:var(--sh) !important}
+  body .stats-band .wrap{padding-top:var(--sx) !important; padding-bottom:var(--sx) !important}
+  body #sumenh .wrap{padding-top:0 !important; padding-bottom:0 !important}
+</style>
 </html>
 <!-- redeploy 2026-11-10b -->
