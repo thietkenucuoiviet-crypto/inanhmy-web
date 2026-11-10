@@ -1789,6 +1789,8 @@ function closeLightbox(){var lb=document.getElementById('lightbox');lb.classList
   body .fab a:nth-child(2) .pulse{animation-delay:.3s}
   body .fab a:nth-child(3) .pulse{animation-delay:.6s}
   body .fab .fb{--pc:24,119,242}
+  @keyframes fabRingZ{0%{box-shadow:0 0 0 0 rgba(0,104,255,.9), 0 0 14px 2px rgba(0,104,255,.55)}70%{box-shadow:0 0 0 30px rgba(0,104,255,0), 0 0 22px 6px rgba(0,104,255,0)}100%{box-shadow:0 0 0 0 rgba(0,104,255,0), 0 0 0 0 rgba(0,104,255,0)}}
+  body .fab .z .pulse{animation-name:fabRingZ}
   @media(prefers-reduced-motion:reduce){body .fab a,body .fab .pulse{animation:none}}
 </style>
 <style id="nav-bg">
