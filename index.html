@@ -1791,6 +1791,8 @@ function closeLightbox(){var lb=document.getElementById('lightbox');lb.classList
   body .fab .fb{--pc:24,119,242}
   @keyframes fabRingZ{0%{box-shadow:0 0 0 0 rgba(0,104,255,.9), 0 0 14px 2px rgba(0,104,255,.55)}70%{box-shadow:0 0 0 30px rgba(0,104,255,0), 0 0 22px 6px rgba(0,104,255,0)}100%{box-shadow:0 0 0 0 rgba(0,104,255,0), 0 0 0 0 rgba(0,104,255,0)}}
   body .fab .z .pulse{animation-name:fabRingZ}
+  @keyframes fabShake{0%,38%,100%{transform:rotate(0) scale(1)}4%{transform:rotate(-16deg) scale(1.08)}9%{transform:rotate(15deg) scale(1.08)}14%{transform:rotate(-13deg) scale(1.08)}19%{transform:rotate(12deg) scale(1.06)}24%{transform:rotate(-8deg) scale(1.04)}29%{transform:rotate(6deg) scale(1.02)}34%{transform:rotate(-3deg)}}
+  body .fab a.z{animation:fabShake 2.2s ease-in-out infinite; animation-delay:0s}
   @media(prefers-reduced-motion:reduce){body .fab a,body .fab .pulse{animation:none}}
 </style>
 <style id="nav-bg">
