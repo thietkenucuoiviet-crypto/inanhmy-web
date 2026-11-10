@@ -1334,7 +1334,13 @@
   function val(id){var e=document.getElementById(id);return e?e.value.trim():'';}
   function okPhone(p){return /[0-9]{8,}/.test((p||'').replace(/\D/g,''));}
   function mailto(subject,body){try{if(window.top!==window.self)return;var a=document.createElement('a');a.href='mailto:'+TO+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);a.style.display='none';document.body.appendChild(a);a.click();a.remove();}catch(e){}}
+  var ZALO='0389384010';
+  function zaloGo(body){
+    try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(body).catch(function(){});}}catch(e){}
+    try{window.open('https://zalo.me/'+ZALO,'_blank','noopener');}catch(e){}
+  }
   function send(subject,fields,body){
+    zaloGo(body);
     if(KEY){
       var data={access_key:KEY,subject:subject,from_name:'Website In Anh Mỹ'};
       for(var k in fields){data[k]=fields[k];}
