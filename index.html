@@ -1839,17 +1839,17 @@ function closeLightbox(){var lb=document.getElementById('lightbox');lb.classList
   }
   slides.forEach(function(s,i){ s.draggable=false; put(s, i===0?0:100, 0); if(s.decode){ try{ s.decode().catch(function(){}); }catch(e){} } });
   /* chuyển sang ảnh idx; dir=-1: ảnh hiện tại trượt sang trái (ảnh mới vào từ phải), dir=1: ngược lại */
-  function commit(idx, dir, ms, ease){
+  function commit(idx, dir, ms, ease, wait){
     var a=slides[cur], b=slides[idx]; busy=true;
     put(a, dir<0?-100:100, ms, ease); put(b, 0, ms, ease);
-    setTimeout(function(){ put(a,100,0); cur=idx; busy=false; schedule(); }, ms+60);
+    setTimeout(function(){ put(a,100,0); cur=idx; busy=false; schedule(wait); }, ms+60);
   }
   function auto(){
     if(busy||drag||document.hidden){ schedule(); return; }
     var nxt=(cur+1)%N; put(slides[nxt],100,0); void slides[nxt].offsetWidth;
-    requestAnimationFrame(function(){ commit(nxt,-1,DUR,EASE); });
+    requestAnimationFrame(function(){ commit(nxt,-1,DUR,EASE,Math.max(500,STEP-DUR-60)); });
   }
-  function schedule(){ clearTimeout(timer); if(!reduced) timer=setTimeout(auto, STEP); }
+  function schedule(wait){ clearTimeout(timer); if(!reduced) timer=setTimeout(auto, wait||STEP); }
 
   /* ---- vuốt / kéo ---- */
   var drag=null;
