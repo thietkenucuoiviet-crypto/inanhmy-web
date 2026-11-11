@@ -1816,31 +1816,100 @@ function closeLightbox(){var lb=document.getElementById('lightbox');lb.classList
 <style id="hero-slider">
   body .hero{position:relative; overflow:hidden; aspect-ratio:2000/622; width:100%}
   body .hero .hero-banner{position:absolute; left:0; top:0; width:100% !important; height:100% !important; object-fit:cover; transform:translateX(100%); will-change:transform; backface-visibility:hidden; margin:0 !important}
+  body .hero{touch-action:pan-y; cursor:grab; -webkit-user-select:none; user-select:none}
+  body .hero.hs-drag{cursor:grabbing}
+  body .hero .hs-arrow{position:absolute; top:50%; transform:translateY(-50%); z-index:5; width:42px; height:42px; border-radius:50%; display:grid; place-items:center; padding:0; cursor:pointer; color:#fff; background:rgba(5,12,40,.35); border:1.5px solid rgba(255,255,255,.7); -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px); transition:background .2s ease, border-color .2s ease, transform .2s ease}
+  body .hero .hs-prev{left:14px} body .hero .hs-next{right:14px}
+  @media(min-width:641px){body .hero .hs-next{right:96px}}
+  body .hero .hs-arrow:hover{background:rgba(255,204,41,.9); border-color:#FFCC29; color:#1b1300}
+  body .hero .hs-arrow:active{transform:translateY(-50%) scale(.92)}
+  body .hero .hs-arrow:focus-visible{outline:2px solid #FFDD3C; outline-offset:2px}
+  @media(max-width:640px){body .hero .hs-arrow{width:32px; height:32px} body .hero .hs-arrow svg{width:16px; height:16px} body .hero .hs-prev{left:6px} body .hero .hs-next{right:6px}}
+  body .hero .hero-banner{-webkit-user-drag:none; pointer-events:none}
 </style>
 <script id="hero-slider-js">
 (function(){
   var hero=document.getElementById('heroSlider'); if(!hero) return;
-  var slides=[].slice.call(hero.querySelectorAll('.hero-banner')); if(slides.length<2) return;
-  var STEP=8000, DUR=2000, EASE='cubic-bezier(.45,.05,.25,1)', cur=0, busy=false;
-  function put(el,x,anim){
-    el.style.transition = anim ? 'transform '+DUR+'ms '+EASE : 'none';
+  var slides=[].slice.call(hero.querySelectorAll('.hero-banner')); var N=slides.length; if(N<2) return;
+  var STEP=8000, DUR=2000, SWIPE_DUR=550, EASE='cubic-bezier(.45,.05,.25,1)', EASE_SWIPE='cubic-bezier(.22,.8,.3,1)';
+  var cur=0, busy=false, timer=null, reduced=window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function put(el,x,ms,ease){
+    el.style.transition = ms ? 'transform '+ms+'ms '+(ease||EASE) : 'none';
     el.style.transform = 'translate3d('+x+'%,0,0)';
   }
-  slides.forEach(function(s,i){
-    put(s, i===0?0:100, false);
-    if(s.decode){ try{ s.decode().catch(function(){}); }catch(e){} }
-  });
-  if(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  function go(){
-    if(busy || document.hidden) return; busy=true;
-    var nxt=(cur+1)%slides.length, a=slides[cur], b=slides[nxt];
-    put(b,100,false); void b.offsetWidth;
-    requestAnimationFrame(function(){
-      put(a,-100,true); put(b,0,true);
-      setTimeout(function(){ put(a,100,false); cur=nxt; busy=false; }, DUR+60);
-    });
+  slides.forEach(function(s,i){ s.draggable=false; put(s, i===0?0:100, 0); if(s.decode){ try{ s.decode().catch(function(){}); }catch(e){} } });
+  /* chuyển sang ảnh idx; dir=-1: ảnh hiện tại trượt sang trái (ảnh mới vào từ phải), dir=1: ngược lại */
+  function commit(idx, dir, ms, ease){
+    var a=slides[cur], b=slides[idx]; busy=true;
+    put(a, dir<0?-100:100, ms, ease); put(b, 0, ms, ease);
+    setTimeout(function(){ put(a,100,0); cur=idx; busy=false; schedule(); }, ms+60);
   }
-  setInterval(go, STEP);
+  function auto(){
+    if(busy||drag||document.hidden){ schedule(); return; }
+    var nxt=(cur+1)%N; put(slides[nxt],100,0); void slides[nxt].offsetWidth;
+    requestAnimationFrame(function(){ commit(nxt,-1,DUR,EASE); });
+  }
+  function schedule(){ clearTimeout(timer); if(!reduced) timer=setTimeout(auto, STEP); }
+
+  /* ---- vuốt / kéo ---- */
+  var drag=null;
+  function W(){ return hero.getBoundingClientRect().width||1; }
+  function nb(dir){ return (cur+(dir<0?1:N-1))%N; }
+  hero.addEventListener('pointerdown',function(e){
+    if(busy || (e.pointerType==='mouse' && e.button!==0)) return;
+    drag={id:e.pointerId,x:e.clientX,y:e.clientY,t:e.timeStamp,lock:null,dx:0,dir:0,n:-1,lx:e.clientX,lt:e.timeStamp,v:0};
+    clearTimeout(timer);
+    try{ hero.setPointerCapture(e.pointerId); }catch(err){}
+  });
+  hero.addEventListener('pointermove',function(e){
+    if(!drag||e.pointerId!==drag.id) return;
+    var dx=e.clientX-drag.x, dy=e.clientY-drag.y;
+    if(drag.lock===null){
+      if(Math.abs(dx)<8 && Math.abs(dy)<8) return;
+      drag.lock = Math.abs(dx)>Math.abs(dy) ? 'h' : 'v';
+      if(drag.lock==='v'){ drag=null; schedule(); return; }
+      hero.classList.add('hs-drag');
+    }
+    var dt=e.timeStamp-drag.lt; if(dt>0){ drag.v=(e.clientX-drag.lx)/dt; drag.lx=e.clientX; drag.lt=e.timeStamp; }
+    var f=Math.max(-1,Math.min(1,dx/W())); drag.dx=dx;
+    var dir=f<0?-1:1;
+    if(dir!==drag.dir){
+      if(drag.n>=0 && drag.n!==nb(dir)) put(slides[drag.n],100,0);
+      drag.dir=dir; drag.n=nb(dir);
+    }
+    put(slides[cur], f*100, 0);
+    put(slides[drag.n], (dir<0?100:-100)+f*100, 0);
+    if(e.cancelable) e.preventDefault();
+  });
+  function end(e){
+    if(!drag||(e&&e.pointerId!==drag.id)) return;
+    var d=drag; drag=null; hero.classList.remove('hs-drag');
+    try{ hero.releasePointerCapture(d.id); }catch(err){}
+    if(d.lock!=='h'||d.n<0){ schedule(); return; }
+    var f=d.dx/W(), go=Math.abs(f)>0.15 || (Math.abs(d.v)>0.5 && Math.abs(d.dx)>30);
+    if(go) commit(d.n, d.dir, SWIPE_DUR, EASE_SWIPE);
+    else {
+      busy=true; put(slides[cur],0,300,EASE_SWIPE); put(slides[d.n], d.dir<0?100:-100, 300, EASE_SWIPE);
+      setTimeout(function(){ put(slides[d.n],100,0); busy=false; schedule(); }, 360);
+    }
+  }
+  /* ---- 2 nút mũi tên ---- */
+  var MAN_DUR=800;
+  function manual(dir){
+    if(busy||drag) return; clearTimeout(timer);
+    var idx=nb(dir); put(slides[idx], dir<0?100:-100, 0); void slides[idx].offsetWidth;
+    requestAnimationFrame(function(){ commit(idx,dir,MAN_DUR,EASE_SWIPE); });
+  }
+  [['prev','Ảnh trước',1,'M15 5l-7 7 7 7'],['next','Ảnh sau',-1,'M9 5l7 7-7 7']].forEach(function(c){
+    var b=document.createElement('button'); b.type='button'; b.className='hs-arrow hs-'+c[0]; b.setAttribute('aria-label',c[1]);
+    b.innerHTML='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+c[3]+'"/></svg>';
+    b.addEventListener('pointerdown',function(e){ e.stopPropagation(); });
+    b.addEventListener('click',function(e){ e.stopPropagation(); manual(c[2]); });
+    hero.appendChild(b);
+  });
+  hero.addEventListener('pointerup',end); hero.addEventListener('pointercancel',end);
+  hero.addEventListener('dragstart',function(e){ e.preventDefault(); });
+  schedule();
 })();
 </script>
 </html>
